@@ -73,7 +73,11 @@ def luigi_task(inputs, no_output=False, sample_frac=0.2):
                     self.save_output(output)
                     return output
 
+            def __call__(self, *args, **kwargs):
+                return self._func(*args, **kwargs)
+
         FuncTask.__name__ = task_name if not DEBUG else 'debug_' + task_name
+        FuncTask.__doc__ = func.__doc__
 
         return FuncTask()
 
