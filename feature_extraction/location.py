@@ -85,7 +85,6 @@ us_state_abbrev = {v: k.lower() for k, v in us_state_abbrev.items()}
 def add_abrivation_states(str_list):
     l = []
     for s in str_list:
-
         if s in numeric_to_name:
             l.append(numeric_to_name[s])
 
@@ -100,15 +99,19 @@ def add_abrivation_states(str_list):
     return str_list + l
 
 
-def process_location(location):
-    features = pd.DataFrame(index=location.index)
-    na_idx = location[location.isna()].index
-
+def preprocess_location(location):
     location = location.apply(str)
     location = location.apply(clean_text)
     location = location.str.split(' ')
     location = location.apply(add_abrivation_states)
     location = location.apply(lambda ls: ' '.join(ls))
+    return location
+
+
+def process_location(location):
+    features = pd.DataFrame(index=location.index)
+    na_idx = location[location.isna()].index
+    location = preprocess_location(location)
 
     vect = TfidfVectorizer()
     location_vect = vect.fit_transform(location)

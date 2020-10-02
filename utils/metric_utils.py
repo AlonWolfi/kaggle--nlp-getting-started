@@ -41,7 +41,6 @@ class HardMetric(Metric):
         return self.metric(y_true, self.get_y(y_true, y_pred, normalize=False))
 
     def get_y(self, y_true, y_pred, normalize=False):
-        print(y_pred.shape)
         if len(y_pred.shape) == 1:
             th = self.get_thresh(y_true, y_pred)
             return self._get_y_by_thresh(y_pred, th)
