@@ -1,21 +1,8 @@
-import re
-import string
-
 import pandas as pd
 import pycountry
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-
-def clean_text(text):
-    text = text.lower()
-    text = re.sub('\[.*?\]', '', text)
-    text = re.sub('https?://\S+|www\.\S+', '', text)
-    text = re.sub('<.*?>+', '', text)
-    text = re.sub('[%s]' % re.escape(string.punctuation), '', text)
-    text = re.sub('\n', '', text)
-    text = re.sub('\w*\d\w*', '', text)
-    return text
-
+from utils.text_utils import clean_text
 
 numeric_to_name = {c.numeric.lower(): c.name.lower() for c in list(pycountry.countries)}
 alpha_2_to_name = {c.alpha_2.lower(): c.name.lower() for c in list(pycountry.countries)}
@@ -110,7 +97,6 @@ def preprocess_location(location):
 
 def process_location(location):
     features = pd.DataFrame(index=location.index)
-    na_idx = location[location.isna()].index
     location = preprocess_location(location)
 
     vect = TfidfVectorizer()

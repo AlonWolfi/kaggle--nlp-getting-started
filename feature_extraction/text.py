@@ -1,18 +1,14 @@
 import re
-import string
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from utils.text_utils import clean_text
 
-def clean_text(text):
-    text = text.lower()
-    text = re.sub('\[.*?\]', '', text)
-    text = re.sub('https?://\S+|www\.\S+', '', text)
-    text = re.sub('<.*?>+', '', text)
-    text = re.sub('[%s]' % re.escape(string.punctuation), '', text)
-    text = re.sub('\n', '', text)
-    text = re.sub('\w*\d\w*', '', text)
+
+def preprocess_text(text):
+    text = text.apply(str)
+    text = text.apply(clean_text)
     return text
 
 
@@ -26,7 +22,7 @@ def process_text(text):
     features['count_words'] = text.apply(lambda s: len(re.findall('(^|\s)(\S+)', s)))
     features['count_large_words_frac'] = features['count_large_words'] / (features['count_words'] + 1e-1)
 
-    text_cleaned = text.apply(clean_text)
+    text_cleaned = preprocess_text(text)
     vect = TfidfVectorizer()
     text_vect = vect.fit_transform(text_cleaned)
     text_vect_df = pd.DataFrame(

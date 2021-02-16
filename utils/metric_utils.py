@@ -30,17 +30,11 @@ class HardMetric(Metric):
         scores = [self.metric(y_test, self._get_y_by_thresh(y_pred, thresh)) for thresh in thresholds]
         return thresholds[np.argmax(scores)]
 
-    @staticmethod
-    def _normalize_by_thresh(y_proba, th=0.5):
-        y_proba_fixed = np.zeros(y_proba.shape)
-        y_proba_fixed[y_proba < th] = (y_proba[y_proba < th] / th) * 0.5
-        y_proba_fixed[y_proba >= th] = ((y_proba[y_proba >= th] - th) / (1 - th)) * 0.5 + 0.5
-        return y_proba_fixed
 
     def __call__(self, y_true, y_pred):
-        return self.metric(y_true, self.get_y(y_true, y_pred, normalize=False))
+        return self.metric(y_true, self.get_y(y_true, y_pred))
 
-    def get_y(self, y_true, y_pred, normalize=False):
+    def get_y(self, y_true, y_pred):
         if len(y_pred.shape) == 1:
             th = self.get_thresh(y_true, y_pred)
             return self._get_y_by_thresh(y_pred, th)
@@ -50,9 +44,6 @@ class HardMetric(Metric):
                 y_proba_c = y_pred[:, c]
                 y_test_c = y_true[:, c]
                 th = self.get_thresh(y_test_c, y_proba_c)
-                if normalize:
-                    y.append(self._normalize_by_thresh(y_proba_c, th))
-                else:
-                    y.append(self._get_y_by_thresh(y_proba_c, th))
+                y.append(self._get_y_by_thresh(y_proba_c, th))
 
             return np.array(y).T
